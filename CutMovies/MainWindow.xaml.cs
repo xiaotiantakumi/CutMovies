@@ -33,6 +33,7 @@ namespace CutMovies
             PartsData = partsData;
         }
     }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -74,8 +75,6 @@ namespace CutMovies
 
         private static void CreatePartMovie(List<MovieInfomation> mInfoList)
         {
-            var context = mInfoList[0].Context;
-            var partsData = mInfoList[0].PartsData;
             foreach (var mInfo in mInfoList)
             {
                 CreatePartMovies(mInfo);
@@ -114,7 +113,11 @@ namespace CutMovies
         {
             var context = mInfo.Context;
             var partsData = mInfo.PartsData;
-            var outPutPath = $@"{context.OutputDirectoryPath}\{mInfo.FromFileName}";
+            // 出力先のフォルダ
+            var outPutPath = $@"{context.OutputDirectoryPath}{mInfo.FromFileName}";
+            // 出力先のフォルダを作成
+            Directory.CreateDirectory(outPutPath);
+            // 
             List<string> outPutFileList = new List<string>();
             foreach (var part in partsData)
             {
@@ -123,8 +126,8 @@ namespace CutMovies
                     continue;
                 }
 
-                var oFileName = $@"output {part.Number} .mp4";
-                var fullFileName = outPutPath + oFileName;
+                var oFileName = $@"output{part.Number}.mp4";
+                var fullFileName = outPutPath+ @"\" + oFileName;
                 outPutFileList.Add(fullFileName);
                 var arguments =
                     $@"-ss {part.From + context.StartDelayDuration} -i {context.InputMoviePath} -t {part.Duration + context.StartDelayDuration + context.EndDelayDuration}  {fullFileName}";
@@ -262,6 +265,11 @@ namespace CutMovies
             Dialog dialog = new Dialog();
             dialog.Owner = this;
             dialog.Show();
+        }
+
+        private void ButtonThumbnail_Click(object sender, RoutedEventArgs e)
+        {
+            var contexts = CreateMovieContexts();
         }
     }
 }
