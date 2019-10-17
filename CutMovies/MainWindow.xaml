@@ -24,7 +24,7 @@
         <Button Content="結合" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center"  Click="BtnJoin_Click"/>
         <Label Grid.Row="0" Grid.Column="0" Content="パス"/>
         <Label Grid.Row="2" Grid.Column="0" Content="刻み時間(秒)"/>
-        <TextBox Grid.Row="2" Grid.Column="1" Height="20" Width="100" HorizontalAlignment="Right"></TextBox>
-        <Button Content="サムネイル" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="ButtonThumbnail_Click"/>
+        <TextBox Name="intervalTime" Grid.Row="2" Grid.Column="1" Height="20" Width="100" HorizontalAlignment="Right"></TextBox>
+        <Button  Content="サムネイル" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="ButtonThumbnail_Click"/>
     </Grid>
 </Window>

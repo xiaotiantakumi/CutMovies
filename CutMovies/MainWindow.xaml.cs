@@ -269,7 +269,38 @@ namespace CutMovies
 
         private void ButtonThumbnail_Click(object sender, RoutedEventArgs e)
         {
+            var intervalTime = this.intervalTime.Text;
             var contexts = CreateMovieContexts();
+
+            foreach (var context in contexts)
+            {
+                // 出力先のフォルダ
+                var outPutPath = $@"{context.OutputDirectoryPath}{Path.GetFileNameWithoutExtension(context.InputMoviePath)}";
+                // 出力先のフォルダを作成
+                Directory.CreateDirectory(outPutPath);
+
+                var arguments =
+                    $@"-i {context.InputMoviePath} -vf thumbnail -frames:v 10 -vsync 0 {outPutPath}\thumbnail%03d.jpg";
+                using var process = new Process();
+                process.StartInfo = new ProcessStartInfo
+                {
+                    FileName = FfmpegPath,
+                    Arguments = arguments,
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                };
+                process.Start();
+
+                var tmp = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                if (process.HasExited)
+                {
+                    process.Kill();
+                }
+            }
+            //
         }
     }
 }
