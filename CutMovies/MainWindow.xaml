@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CutMovies"
         mc:Ignorable="d"
-        Title="MainWindow" Height="200" Width="409">
+        Title="MainWindow" Height="500" Width="700">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
@@ -28,12 +28,19 @@
         <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
         <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"/>
         <!--コントロール-->
+        <!--全実行-->
         <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="全実行"/>
         <Button Content="全実行" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnAllExecute_Click"/>
+        <!--動画分離-->
         <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画分離"/>
         <Button Content="分離" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnSeparation_Click"/>
+        <!--パス設定-->
+        <Button Content="パス設定" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,0,0" Click="FileOpenButton_Click"/>
+        <TextBlock Name="textBlockFileName" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" TextWrapping="WrapWithOverflow"/>
+        <!--動画結合-->
         <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画結合"/>
         <Button Content="結合" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center"  Click="BtnJoin_Click"/>
+        <!--サムネイル作成-->
         <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="サムネイル作成"/>
         <TextBox Name="intervalTime" Grid.Row="4" Grid.Column="1" Height="20" Width="40" HorizontalAlignment="Right">1</TextBox>
         <Label Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"  Content="画像生成間隔(秒)"/>
