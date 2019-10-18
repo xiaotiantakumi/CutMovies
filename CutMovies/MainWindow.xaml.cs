@@ -50,8 +50,8 @@ namespace CutMovies
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
             var inputDirectory = curDirrectory + @"\input";
             string[] files = System.IO.Directory.GetFiles(
-                inputDirectory, "*", System.IO.SearchOption.AllDirectories);
-            var outputDir = curDirrectory + @"\output\";
+                inputDirectory, "*", System.IO.SearchOption.TopDirectoryOnly);
+            var outputDir = inputDirectory + @"\output\";
 
             List<GetMovieContext> contexts = new List<GetMovieContext>();
             foreach (var file in files)
@@ -59,7 +59,7 @@ namespace CutMovies
                 var context = 
                     new GetMovieContext(file, 
                     outputDir, 
-                    0.5, 
+                    0, 
                     0);
                 contexts.Add(context);
             }
@@ -78,7 +78,7 @@ namespace CutMovies
             var context = mInfo.Context;
             var partsData = mInfo.PartsData;
             // 出力先のフォルダ
-            var outPutPath = $@"{context.OutputDirectoryPath}{mInfo.FromFileName}";
+            var outPutPath = context.OutputDirectoryPath;
             // 出力先のフォルダを作成
             Directory.CreateDirectory(outPutPath);
             // 
@@ -106,7 +106,11 @@ namespace CutMovies
                 writer.WriteLine(@"file " + file.Replace(@"\", @"\\"));
             }
         }
-
+        /// <summary>
+        /// 出力済みパート動画の情報をテキストで出力しておく。後に結合時に必要
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
         private static string GetOutPutFileSummaryPath(string path)
         {
             var outPutFilesSummary = path + @"\summary.txt";
@@ -165,13 +169,17 @@ namespace CutMovies
 
         private void BtnJoin_Click(object sender, RoutedEventArgs e)
         {
+            var contexts = CreateMovieContexts();
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
             var outputDir = curDirrectory + @"\output\";
-            var summaryPath = GetOutPutFileSummaryPath(outputDir);
+            foreach (var context in contexts)
+            {
+                var summaryPath = GetOutPutFileSummaryPath(context.OutputDirectoryPath);
 
-            //var arguments = $@"-f concat -i {summaryPath} -c copy {outputDir}Summary.mp4";
-            var arguments = $@"-safe 0 -f concat -i {summaryPath} -c:v copy -c:a copy -map 0:v -map 0:a output.mp4";
-            FfmpegExecute(arguments);
+                //var arguments = $@"-f concat -i {summaryPath} -c copy {outputDir}Summary.mp4";
+                var arguments = $@"-safe 0 -f concat -i {summaryPath} -c:v copy -c:a copy -map 0:v -map 0:a {context.OutputDirectoryPath}\complete.mp4";
+                FfmpegExecute(arguments);
+            }
 
             Dialog dialog = new Dialog();
             dialog.Owner = this;
