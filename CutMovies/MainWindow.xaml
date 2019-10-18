@@ -20,11 +20,21 @@
             <ColumnDefinition Width="4*" />
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
+        <!--背景色-->
+        <Rectangle  Fill="Snow" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Grid.ColumnSpan="3"/>
+        <Rectangle  Fill="AntiqueWhite" Grid.Row="3" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="3"/>
+        <Rectangle  Fill="Snow" Grid.Row="4" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="3"/>
+        <!--枠線-->
+        <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
+        <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"/>
+        <!--コントロール-->
+        <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画分離"/>
         <Button Content="分離" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnSeparation_Click"/>
-        <Button Content="結合" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center"  Click="BtnJoin_Click"/>
-        <Label Grid.Row="0" Grid.Column="0" Content="パス"/>
-        <Label Grid.Row="2" Grid.Column="0" Content="刻み時間(秒)"/>
-        <TextBox Name="intervalTime" Grid.Row="2" Grid.Column="1" Height="20" Width="100" HorizontalAlignment="Right"></TextBox>
-        <Button  Content="サムネイル" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="ButtonThumbnail_Click"/>
+        <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画結合"/>
+        <Button Content="結合" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center"  Click="BtnJoin_Click"/>
+        <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="サムネイル作成"/>
+        <TextBox Name="intervalTime" Grid.Row="4" Grid.Column="1" Height="20" Width="40" HorizontalAlignment="Right">1</TextBox>
+        <Label Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"  Content="画像生成間隔(秒)"/>
+        <Button  Content="実行" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="ButtonThumbnail_Click"/>
     </Grid>
 </Window>
