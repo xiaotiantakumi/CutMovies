@@ -12,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -19,21 +20,6 @@ using Path = System.IO.Path;
 
 namespace CutMovies
 {
-    public class MovieInfomation
-    {
-        public string FromFileName { get; set; }
-        public GetMovieContext Context { get; set; }
-
-        public List<MoviePartsData> PartsData { get; set; }
-
-        public MovieInfomation(GetMovieContext context, List<MoviePartsData> partsData)
-        {
-            FromFileName = Path.GetFileNameWithoutExtension(context.InputMoviePath);
-            Context = context;
-            PartsData = partsData;
-        }
-    }
-
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -55,7 +41,10 @@ namespace CutMovies
             dialog.Owner = this;
             dialog.Show();
         }
-
+        /// <summary>
+        /// 元になる動画データの情報を取得
+        /// </summary>
+        /// <returns></returns>
         private static List<GetMovieContext> CreateMovieContexts()
         {
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
@@ -67,7 +56,11 @@ namespace CutMovies
             List<GetMovieContext> contexts = new List<GetMovieContext>();
             foreach (var file in files)
             {
-                var context = new GetMovieContext(file, outputDir, 0.5, 0);
+                var context = 
+                    new GetMovieContext(file, 
+                    outputDir, 
+                    0.5, 
+                    0);
                 contexts.Add(context);
             }
             return contexts;
@@ -79,35 +72,6 @@ namespace CutMovies
             {
                 CreatePartMovies(mInfo);
             }
-        }
-
-        private static void CreatePartMoviesByParallel()
-        {
-            //ParallelOptions option = new ParallelOptions();
-            //option.MaxDegreeOfParallelism = 2;
-            //Parallel.ForEach(mInfoList, (duration) =>
-            //{
-            //    if (!duration.IsCreate)
-            //    {
-            //        return;
-            //    }
-
-            //    var outputFileName = context.OutputDirectoryPath + "output" + duration.Number + ".mp4";
-            //    var arguments =
-            //        $@"-ss {duration.From - 0.5} -i {context.InputMoviePath} -t {duration.Duration + 0.5}  {outputFileName}";
-            //    using var process = new Process();
-            //    process.StartInfo = new ProcessStartInfo
-            //    {
-            //        FileName = FfmpegPath,
-            //        Arguments = arguments,
-            //        CreateNoWindow = true,
-            //        UseShellExecute = false,
-            //        RedirectStandardOutput = true,
-            //        RedirectStandardError = true
-            //    };
-            //    process.Start();
-            //    process.StandardError.ReadLine();
-            //});
         }
         private static void CreatePartMovies(MovieInfomation mInfo)
         {
@@ -131,24 +95,7 @@ namespace CutMovies
                 outPutFileList.Add(fullFileName);
                 var arguments =
                     $@"-ss {part.From + context.StartDelayDuration} -i {context.InputMoviePath} -t {part.Duration + context.StartDelayDuration + context.EndDelayDuration}  {fullFileName}";
-                using var process = new Process();
-                process.StartInfo = new ProcessStartInfo
-                {
-                    FileName = FfmpegPath,
-                    Arguments = arguments,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                };
-                process.Start();
-
-                var tmp = process.StandardError.ReadToEnd();
-                process.WaitForExit();
-                if (process.HasExited)
-                {
-                    process.Kill();
-                }
+                FfmpegExecute(arguments);
             }
 
             var summaryPath = GetOutPutFileSummaryPath(outPutPath);
@@ -180,37 +127,19 @@ namespace CutMovies
 
             return movieInfomations;
         }
-
-        private static List<MoviePartsData> CreatePartList(GetMovieContext getMovieContext)
+        /// <summary>
+        /// 動画から有音区間の情報を作成
+        /// </summary>
+        /// <param name="getMovieContext"></param>
+        /// <returns></returns>
+        private static List<SoundPartInfo> CreatePartList(GetMovieContext getMovieContext)
         {
             var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise=-30dB:d=0.4 -f null -";
-
-            string rawinfo = string.Empty;
-            using (var process = new Process())
-            {
-                process.StartInfo = new ProcessStartInfo
-                {
-                    FileName = FfmpegPath,
-                    Arguments = arguments,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                };
-                process.Start();
-
-                // StandardErrorに情報が入る
-                rawinfo = process.StandardError.ReadToEnd();
-                process.WaitForExit();
-                if (process.HasExited)
-                {
-                    process.Kill();
-                }
-            }
+            var rawinfo = FfmpegExecute(arguments);
 
             var tmpInfo = rawinfo.Replace(Environment.NewLine, " ").Split(' ');
 
-            List<MoviePartsData> durationList = new List<MoviePartsData>();
+            List<SoundPartInfo> soundPartInfoList = new List<SoundPartInfo>();
             List<double> startEndTimeList = new List<double>();
             for (int i = 0; i < tmpInfo.Length; i++)
             {
@@ -228,10 +157,10 @@ namespace CutMovies
                     continue;
                 }
 
-                durationList.Add(new MoviePartsData(num++, startEndTimeList[i - 1], startEndTimeList[i]));
+                soundPartInfoList.Add(new SoundPartInfo(num++, startEndTimeList[i - 1], startEndTimeList[i]));
             }
 
-            return durationList;
+            return soundPartInfoList;
         }
 
         private void BtnJoin_Click(object sender, RoutedEventArgs e)
@@ -240,10 +169,51 @@ namespace CutMovies
             var outputDir = curDirrectory + @"\output\";
             var summaryPath = GetOutPutFileSummaryPath(outputDir);
 
-            using var process = new Process();
             //var arguments = $@"-f concat -i {summaryPath} -c copy {outputDir}Summary.mp4";
             var arguments = $@"-safe 0 -f concat -i {summaryPath} -c:v copy -c:a copy -map 0:v -map 0:a output.mp4";
+            FfmpegExecute(arguments);
 
+            Dialog dialog = new Dialog();
+            dialog.Owner = this;
+            dialog.Show();
+        }
+
+        private void ButtonThumbnail_Click(object sender, RoutedEventArgs e)
+        {
+            var tmpIntervalTime = this.intervalTime.Text;
+            double intervalTime = 1;
+            var parseRet = double.TryParse(tmpIntervalTime, out intervalTime);
+            if (parseRet)
+            {
+                intervalTime = 1 / intervalTime;
+            }
+            var contexts = CreateMovieContexts();
+            
+            foreach (var context in contexts)
+            {
+                // 出力先のフォルダ
+                var outPutPath = $@"{context.OutputDirectoryPath}{Path.GetFileNameWithoutExtension(context.InputMoviePath)}\thumbnail";
+                // 出力先のフォルダを作成
+                Directory.CreateDirectory(outPutPath);
+
+                var arguments =
+                    $@"-i {context.InputMoviePath} -filter:v fps=fps={intervalTime}:round=down -q:v 0.2 {outPutPath}\%04d.jpg";
+                
+                FfmpegExecute(arguments);
+            }
+            Dialog dialog = new Dialog();
+            dialog.Owner = this;
+            dialog.Show();
+            //
+        }
+        /// <summary>
+        /// ffmpegのプロセスをスタート
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <returns></returns>
+        private static string FfmpegExecute(string arguments)
+        {
+            using var process = new Process();
             process.StartInfo = new ProcessStartInfo
             {
                 FileName = FfmpegPath,
@@ -255,52 +225,13 @@ namespace CutMovies
             };
             process.Start();
             var tmp = process.StandardError.ReadToEnd();
-            //var tmp2 = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
             if (process.HasExited)
             {
                 process.Kill();
             }
 
-            Dialog dialog = new Dialog();
-            dialog.Owner = this;
-            dialog.Show();
-        }
-
-        private void ButtonThumbnail_Click(object sender, RoutedEventArgs e)
-        {
-            var intervalTime = this.intervalTime.Text;
-            var contexts = CreateMovieContexts();
-
-            foreach (var context in contexts)
-            {
-                // 出力先のフォルダ
-                var outPutPath = $@"{context.OutputDirectoryPath}{Path.GetFileNameWithoutExtension(context.InputMoviePath)}";
-                // 出力先のフォルダを作成
-                Directory.CreateDirectory(outPutPath);
-
-                var arguments =
-                    $@"-i {context.InputMoviePath} -vf thumbnail -frames:v 10 -vsync 0 {outPutPath}\thumbnail%03d.jpg";
-                using var process = new Process();
-                process.StartInfo = new ProcessStartInfo
-                {
-                    FileName = FfmpegPath,
-                    Arguments = arguments,
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                };
-                process.Start();
-
-                var tmp = process.StandardError.ReadToEnd();
-                process.WaitForExit();
-                if (process.HasExited)
-                {
-                    process.Kill();
-                }
-            }
-            //
+            return tmp;
         }
     }
 }
