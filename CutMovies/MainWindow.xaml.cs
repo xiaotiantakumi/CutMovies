@@ -16,6 +16,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 using Path = System.IO.Path;
 
 namespace CutMovies
@@ -281,6 +282,33 @@ namespace CutMovies
             ExecuteMakeThumbnail();
             ExecuteJoinPartMovies();
             ShowCompleteDialog();
+        }
+
+        private void FileOpenButton_Click(object sender, RoutedEventArgs e)
+        {
+            string initialFileName = "SelectFolder Or Files";
+            var dialog = new OpenFileDialog()
+            {
+                FileName = initialFileName, 
+                CheckFileExists = false,
+                CheckPathExists = true,
+                Title = "ファイルを開く",
+                Filter = "全てのファイル(*.*)|*.*",
+                Multiselect = true
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                if (dialog.SafeFileName == initialFileName)
+                {
+                    this.textBlockFileName.Text = Path.GetDirectoryName(dialog.FileName);
+                    return;
+                }
+                this.textBlockFileName.Text = string.Join(Environment.NewLine, dialog.SafeFileNames);
+            }
+            else
+            {
+                this.textBlockFileName.Text = "キャンセルされました";
+            }
         }
     }
 }
