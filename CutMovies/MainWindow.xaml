@@ -28,8 +28,10 @@
         <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
         <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"/>
         <!--コントロール-->
-        <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画分離"/>
-        <Button Content="分離" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnSeparation_Click"/>
+        <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="全実行"/>
+        <Button Content="全実行" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnAllExecute_Click"/>
+        <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画分離"/>
+        <Button Content="分離" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnSeparation_Click"/>
         <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画結合"/>
         <Button Content="結合" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center"  Click="BtnJoin_Click"/>
         <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="サムネイル作成"/>

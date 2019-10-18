@@ -32,15 +32,25 @@ namespace CutMovies
 
         private void BtnSeparation_Click(object sender, RoutedEventArgs e)
         {
+            ExecuteSeparation();
+            ShowCompleteDialog();
+        }
+
+        private void ExecuteSeparation()
+        {
             var contexts = CreateMovieContexts();
             var info = GetAllMoviePartsList(contexts);
 
             CreatePartMovie(info);
+        }
 
+        private void ShowCompleteDialog()
+        {
             Dialog dialog = new Dialog();
             dialog.Owner = this;
             dialog.Show();
         }
+
         /// <summary>
         /// 元になる動画データの情報を取得
         /// </summary>
@@ -70,10 +80,17 @@ namespace CutMovies
         {
             foreach (var mInfo in mInfoList)
             {
-                CreatePartMovies(mInfo);
+                var outPutFileList = CreatePartMovies(mInfo);
+                CreateSummaryTxt(outPutFileList, mInfo.Context.OutputDirectoryPath);
+
             }
         }
-        private static void CreatePartMovies(MovieInfomation mInfo)
+        /// <summary>
+        /// それぞれの有音区間の動画を作成し、出力データのリストを返す
+        /// </summary>
+        /// <param name="mInfo"></param>
+        /// <returns></returns>
+        private static List<string> CreatePartMovies(MovieInfomation mInfo)
         {
             var context = mInfo.Context;
             var partsData = mInfo.PartsData;
@@ -98,14 +115,19 @@ namespace CutMovies
                 FfmpegExecute(arguments);
             }
 
+            return outPutFileList;
+        }
+
+        private static void CreateSummaryTxt(List<string> outPutFileList, string outPutPath)
+        {
             var summaryPath = GetOutPutFileSummaryPath(outPutPath);
             using StreamWriter writer = new StreamWriter(summaryPath, false);
             foreach (var file in outPutFileList)
             {
-                //file.Replace(@"\", @"\\");
                 writer.WriteLine(@"file " + file.Replace(@"\", @"\\"));
             }
         }
+
         /// <summary>
         /// 出力済みパート動画の情報をテキストで出力しておく。後に結合時に必要
         /// </summary>
@@ -169,6 +191,12 @@ namespace CutMovies
 
         private void BtnJoin_Click(object sender, RoutedEventArgs e)
         {
+            ExecuteJoinPartMovies();
+            ShowCompleteDialog();
+        }
+
+        private void ExecuteJoinPartMovies()
+        {
             var contexts = CreateMovieContexts();
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
             var outputDir = curDirrectory + @"\output\";
@@ -177,43 +205,48 @@ namespace CutMovies
                 var summaryPath = GetOutPutFileSummaryPath(context.OutputDirectoryPath);
 
                 //var arguments = $@"-f concat -i {summaryPath} -c copy {outputDir}Summary.mp4";
-                var arguments = $@"-safe 0 -f concat -i {summaryPath} -c:v copy -c:a copy -map 0:v -map 0:a {context.OutputDirectoryPath}\complete.mp4";
+                var arguments =
+                    $@"-safe 0 -f concat -i {summaryPath} -c:v copy -c:a copy -map 0:v -map 0:a {context.OutputDirectoryPath}\complete.mp4";
                 FfmpegExecute(arguments);
             }
-
-            Dialog dialog = new Dialog();
-            dialog.Owner = this;
-            dialog.Show();
         }
 
         private void ButtonThumbnail_Click(object sender, RoutedEventArgs e)
         {
+            ExecuteMakeThumbnail();
+            ShowCompleteDialog();
+        }
+
+        private void ExecuteMakeThumbnail()
+        {
             var tmpIntervalTime = this.intervalTime.Text;
-            double intervalTime = 1;
-            var parseRet = double.TryParse(tmpIntervalTime, out intervalTime);
+            var parseRet = double.TryParse(tmpIntervalTime, out double intervalTime);
             if (parseRet)
             {
                 intervalTime = 1 / intervalTime;
             }
+            else
+            {
+                intervalTime = 1;
+            }
+
             var contexts = CreateMovieContexts();
-            
+
             foreach (var context in contexts)
             {
                 // 出力先のフォルダ
-                var outPutPath = $@"{context.OutputDirectoryPath}{Path.GetFileNameWithoutExtension(context.InputMoviePath)}\thumbnail";
+                var outPutPath =
+                    $@"{context.OutputDirectoryPath}\thumbnail";
                 // 出力先のフォルダを作成
                 Directory.CreateDirectory(outPutPath);
 
                 var arguments =
-                    $@"-i {context.InputMoviePath} -filter:v fps=fps={intervalTime}:round=down -q:v 0.2 {outPutPath}\%04d.jpg";
-                
+                    $@"-i {context.InputMoviePath} -filter:v fps=fps={intervalTime}:round=down -q:v 0.2 {outPutPath}\%09d.jpg";
+
                 FfmpegExecute(arguments);
             }
-            Dialog dialog = new Dialog();
-            dialog.Owner = this;
-            dialog.Show();
-            //
         }
+
         /// <summary>
         /// ffmpegのプロセスをスタート
         /// </summary>
@@ -240,6 +273,14 @@ namespace CutMovies
             }
 
             return tmp;
+        }
+
+        private void BtnAllExecute_Click(object sender, RoutedEventArgs e)
+        {
+            ExecuteSeparation();
+            ExecuteMakeThumbnail();
+            ExecuteJoinPartMovies();
+            ShowCompleteDialog();
         }
     }
 }
