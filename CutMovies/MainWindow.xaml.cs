@@ -21,6 +21,18 @@ using Path = System.IO.Path;
 
 namespace CutMovies
 {
+    public sealed class DataStore
+    {
+        static DataStore()
+        {
+        }
+
+        private DataStore()
+        {
+        }
+
+        public static DataStore Instance { get; } = new DataStore();
+    }
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -29,6 +41,9 @@ namespace CutMovies
         public MainWindow()
         {
             InitializeComponent();
+            var curDirrectory = System.IO.Directory.GetCurrentDirectory();
+            this.textBlockFileName.Text = curDirrectory + @"\input";
+            this.textBlockFileName.ToolTip = curDirrectory + @"\input";
         }
 
         private void BtnSeparation_Click(object sender, RoutedEventArgs e)
@@ -56,10 +71,10 @@ namespace CutMovies
         /// 元になる動画データの情報を取得
         /// </summary>
         /// <returns></returns>
-        private static List<GetMovieContext> CreateMovieContexts()
+        private List<GetMovieContext> CreateMovieContexts()
         {
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
-            var inputDirectory = curDirrectory + @"\input";
+            var inputDirectory = this.textBlockFileName.Text;
             string[] files = System.IO.Directory.GetFiles(
                 inputDirectory, "*", System.IO.SearchOption.TopDirectoryOnly);
             var outputDir = inputDirectory + @"\output\";
@@ -141,7 +156,7 @@ namespace CutMovies
         }
 
         static readonly string FfmpegPath = @"C:\root\shortcut\ffmpeg.exe";
-        public static List<MovieInfomation> GetAllMoviePartsList(List<GetMovieContext> movieContexts)
+        public List<MovieInfomation> GetAllMoviePartsList(List<GetMovieContext> movieContexts)
         {
             List<MovieInfomation> movieInfomations = new List<MovieInfomation>();
             foreach (var context in movieContexts)
@@ -159,7 +174,7 @@ namespace CutMovies
         /// </summary>
         /// <param name="getMovieContext"></param>
         /// <returns></returns>
-        private static List<SoundPartInfo> CreatePartList(GetMovieContext getMovieContext)
+        private List<SoundPartInfo> CreatePartList(GetMovieContext getMovieContext)
         {
             var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise=-30dB:d=0.4 -f null -";
             var rawinfo = FfmpegExecute(arguments);
@@ -304,6 +319,7 @@ namespace CutMovies
                     return;
                 }
                 this.textBlockFileName.Text = string.Join(Environment.NewLine, dialog.SafeFileNames);
+                this.textBlockFileName.ToolTip = string.Join(Environment.NewLine, dialog.SafeFileNames);
             }
             else
             {
