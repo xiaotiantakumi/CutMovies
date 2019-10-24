@@ -42,14 +42,16 @@ namespace CutMovies
         {
             InitializeComponent();
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
-            this.textBlockFileName.Text = curDirrectory + @"\input";
-            this.textBlockFileName.ToolTip = curDirrectory + @"\input";
+            var inputPath = curDirrectory + @"\input";
+            this.TextBlockFileName.Text = inputPath;
+            this.TextBlockFileName.ToolTip = inputPath;
         }
 
         private void BtnSeparation_Click(object sender, RoutedEventArgs e)
         {
             ExecuteSeparation();
             ShowCompleteDialog();
+            this.BtnJoin.IsEnabled = true;
         }
 
         private void ExecuteSeparation()
@@ -74,7 +76,7 @@ namespace CutMovies
         private List<GetMovieContext> CreateMovieContexts()
         {
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
-            var inputDirectory = this.textBlockFileName.Text;
+            var inputDirectory = this.TextBlockFileName.Text;
             string[] files = System.IO.Directory.GetFiles(
                 inputDirectory, "*", System.IO.SearchOption.TopDirectoryOnly);
             var outputDir = inputDirectory + @"\output\";
@@ -176,7 +178,7 @@ namespace CutMovies
         /// <returns></returns>
         private List<SoundPartInfo> CreatePartList(GetMovieContext getMovieContext)
         {
-            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise=-30dB:d=0.4 -f null -";
+            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise={this.NoSoundLevel}dB:d={NoSoundTerm} -f null -";
             var rawinfo = FfmpegExecute(arguments);
 
             var tmpInfo = rawinfo.Replace(Environment.NewLine, " ").Split(' ');
@@ -235,7 +237,7 @@ namespace CutMovies
 
         private void ExecuteMakeThumbnail()
         {
-            var tmpIntervalTime = this.intervalTime.Text;
+            var tmpIntervalTime = this.IntervalTime.Text;
             var parseRet = double.TryParse(tmpIntervalTime, out double intervalTime);
             if (parseRet)
             {
@@ -315,15 +317,15 @@ namespace CutMovies
             {
                 if (dialog.SafeFileName == initialFileName)
                 {
-                    this.textBlockFileName.Text = Path.GetDirectoryName(dialog.FileName);
+                    this.TextBlockFileName.Text = Path.GetDirectoryName(dialog.FileName);
                     return;
                 }
-                this.textBlockFileName.Text = string.Join(Environment.NewLine, dialog.SafeFileNames);
-                this.textBlockFileName.ToolTip = string.Join(Environment.NewLine, dialog.SafeFileNames);
+                this.TextBlockFileName.Text = string.Join(Environment.NewLine, dialog.SafeFileNames);
+                this.TextBlockFileName.ToolTip = string.Join(Environment.NewLine, dialog.SafeFileNames);
             }
             else
             {
-                this.textBlockFileName.Text = "キャンセルされました";
+                this.TextBlockFileName.Text = "キャンセルされました";
             }
         }
     }

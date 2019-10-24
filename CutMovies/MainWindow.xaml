@@ -21,29 +21,43 @@
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
         <!--背景色-->
-        <Rectangle  Fill="Snow" Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Grid.ColumnSpan="3"/>
+        <Rectangle  Fill="DarkGreen" Grid.Row="0" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="3"/>
         <Rectangle  Fill="AntiqueWhite" Grid.Row="3" Grid.Column="0" Grid.RowSpan="1" Grid.ColumnSpan="3"/>
         <Rectangle  Fill="Snow" Grid.Row="4" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="3"/>
         <!--枠線-->
-        <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"/>
-        <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"/>
+        <Border BorderBrush="Black" BorderThickness="0,0,0,1" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"/>
+        <Border BorderBrush="Black" BorderThickness="0,1,0,1" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"/>
         <!--コントロール-->
-        <!--全実行-->
-        <Label Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="全実行"/>
-        <Button Content="全実行" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnAllExecute_Click"/>
+        <!--設定保存-->
+        <Button Content="設定保存" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnSeparation_Click"/>
         <!--動画分離-->
         <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画分離"/>
+        <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
+            <StackPanel  Orientation="Horizontal" DockPanel.Dock="Top" CanHorizontallyScroll="True">
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center"  Content="無音継続(秒)"/>
+                <TextBox Name="NoSoundTerm" Height="20" Width="40" HorizontalAlignment="Right">0.4
+                    <TextBox.ToolTip>無音区間が設定秒以上連続した場合に分離して除外する</TextBox.ToolTip>
+                </TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" CanHorizontallyScroll="True">
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center"  Content="無音判定(dB)"/>
+                <TextBox Name="NoSoundLevel" Height="20" Width="40" HorizontalAlignment="Right">-30</TextBox>
+            </StackPanel>
+        </StackPanel>
+
         <Button Content="分離" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnSeparation_Click"/>
         <!--パス設定-->
-        <Button Content="パス設定" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="5,0,0,0" Click="FileOpenButton_Click" ToolTip="インプットとなる動画があるフォルダを設定する"/>
-        <TextBlock Name="textBlockFileName" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" Margin="10,5,5,5"/>
+        <Button Content="パス設定" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,0,0,0" Click="FileOpenButton_Click" ToolTip="動画があるフォルダを設定する"/>
+        <TextBlock Name="TextBlockFileName" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" />
         <!--動画結合-->
-        <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画結合"/>
-        <Button Content="結合" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center"  Click="BtnJoin_Click"/>
+        <Label Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画結合" />
+        <Button Name="BtnJoin" Content="結合" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center"  Click="BtnJoin_Click" IsEnabled="False" ToolTip="動画分離の後にできるよ"/>
         <!--サムネイル作成-->
         <Label Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="サムネイル作成"/>
-        <TextBox Name="intervalTime" Grid.Row="4" Grid.Column="1" Height="20" Width="40" HorizontalAlignment="Right">1</TextBox>
+        <TextBox Name="IntervalTime" Grid.Row="4" Grid.Column="1" Height="20" Width="40" HorizontalAlignment="Right">1</TextBox>
         <Label Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"  Content="画像生成間隔(秒)"/>
         <Button  Content="実行" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="ButtonThumbnail_Click"/>
-    </Grid>
+        <!--全実行-->
+        <Button Content="全実行" Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Center" Click="BtnAllExecute_Click" Opacity="20" Background="Pink"/>
+</Grid>
 </Window>
