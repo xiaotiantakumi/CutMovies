@@ -38,6 +38,7 @@ namespace CutMovies
     /// </summary>
     public partial class MainWindow : Window
     {
+        private string FfmpegPath { get; set; } = @"C:\root\shortcut\ffmpeg.exe";
         public MainWindow()
         {
             InitializeComponent();
@@ -45,6 +46,7 @@ namespace CutMovies
             var inputPath = curDirrectory + @"\input";
             this.TextBlockFileName.Text = inputPath;
             this.TextBlockFileName.ToolTip = inputPath;
+            this.FfmpegPath = curDirrectory + @"\ffmpeg.exe";
         }
 
         private void BtnSeparation_Click(object sender, RoutedEventArgs e)
@@ -94,7 +96,7 @@ namespace CutMovies
             return contexts;
         }
 
-        private static void CreatePartMovie(List<MovieInfomation> mInfoList)
+        private void CreatePartMovie(List<MovieInfomation> mInfoList)
         {
             foreach (var mInfo in mInfoList)
             {
@@ -108,7 +110,7 @@ namespace CutMovies
         /// </summary>
         /// <param name="mInfo"></param>
         /// <returns></returns>
-        private static List<string> CreatePartMovies(MovieInfomation mInfo)
+        private List<string> CreatePartMovies(MovieInfomation mInfo)
         {
             var context = mInfo.Context;
             var partsData = mInfo.PartsData;
@@ -156,8 +158,6 @@ namespace CutMovies
             var outPutFilesSummary = path + @"\summary.txt";
             return outPutFilesSummary;
         }
-
-        static readonly string FfmpegPath = @"C:\root\shortcut\ffmpeg.exe";
         public List<MovieInfomation> GetAllMoviePartsList(List<GetMovieContext> movieContexts)
         {
             List<MovieInfomation> movieInfomations = new List<MovieInfomation>();
@@ -178,7 +178,7 @@ namespace CutMovies
         /// <returns></returns>
         private List<SoundPartInfo> CreatePartList(GetMovieContext getMovieContext)
         {
-            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise={this.NoSoundLevel}dB:d={NoSoundTerm} -f null -";
+            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise={this.NoSoundLevel.Text}dB:d={NoSoundTerm.Text} -f null -";
             var rawinfo = FfmpegExecute(arguments);
 
             var tmpInfo = rawinfo.Replace(Environment.NewLine, " ").Split(' ');
@@ -270,7 +270,7 @@ namespace CutMovies
         /// </summary>
         /// <param name="arguments"></param>
         /// <returns></returns>
-        private static string FfmpegExecute(string arguments)
+        private string FfmpegExecute(string arguments)
         {
             using var process = new Process();
             process.StartInfo = new ProcessStartInfo
@@ -310,7 +310,7 @@ namespace CutMovies
                 CheckFileExists = false,
                 CheckPathExists = true,
                 Title = "ファイルを開く",
-                Filter = "全てのファイル(*.*)|*.*",
+                Filter = "全てのファイル(*.*)|*a*",
                 Multiselect = true
             };
             if (dialog.ShowDialog() == true)
@@ -318,6 +318,7 @@ namespace CutMovies
                 if (dialog.SafeFileName == initialFileName)
                 {
                     this.TextBlockFileName.Text = Path.GetDirectoryName(dialog.FileName);
+                    this.TextBlockFileName.ToolTip = Path.GetDirectoryName(dialog.FileName);
                     return;
                 }
                 this.TextBlockFileName.Text = string.Join(Environment.NewLine, dialog.SafeFileNames);
