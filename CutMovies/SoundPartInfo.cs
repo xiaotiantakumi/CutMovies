@@ -7,13 +7,13 @@
         public double To { get; }
         public double Duration { get; }
         public bool IsCreate { get; }
-        public SoundPartInfo(int num,double from, double to)
+        public SoundPartInfo(int num,double from, double to,double createTimeCondition)
         {
             Number = num;
             From = @from;
             To = to;
             Duration = to - from;
-            IsCreate = !(Duration <= 0.5);
+            IsCreate = !(Duration <= createTimeCondition);
         }
     }
 }

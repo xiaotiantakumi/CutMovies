@@ -66,6 +66,7 @@ namespace CutMovies
 
         private void ShowCompleteDialog()
         {
+            this.Activate();
             Dialog dialog = new Dialog();
             dialog.Owner = this;
             dialog.Show();
@@ -90,7 +91,8 @@ namespace CutMovies
                     new GetMovieContext(file, 
                     outputDir, 
                     0, 
-                    0);
+                    0,
+                    this.TxtCreateTimeCondition.Text);
                 contexts.Add(context);
             }
             return contexts;
@@ -178,7 +180,7 @@ namespace CutMovies
         /// <returns></returns>
         private List<SoundPartInfo> CreatePartList(GetMovieContext getMovieContext)
         {
-            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise={this.NoSoundLevel.Text}dB:d={NoSoundTerm.Text} -f null -";
+            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise={this.TxtNoSoundLevel.Text}dB:d={this.TxtNoSoundTerm.Text} -f null -";
             var rawinfo = FfmpegExecute(arguments);
 
             var tmpInfo = rawinfo.Replace(Environment.NewLine, " ").Split(' ');
@@ -201,7 +203,7 @@ namespace CutMovies
                     continue;
                 }
 
-                soundPartInfoList.Add(new SoundPartInfo(num++, startEndTimeList[i - 1], startEndTimeList[i]));
+                soundPartInfoList.Add(new SoundPartInfo(num++, startEndTimeList[i - 1], startEndTimeList[i],getMovieContext.CreateTimeCondition));
             }
 
             return soundPartInfoList;

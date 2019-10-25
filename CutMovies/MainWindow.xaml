@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CutMovies"
         mc:Ignorable="d"
-        Title="MainWindow" Height="300" Width="400">
+        Title="ジェットカッター" Height="300" Width="400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
@@ -33,15 +33,23 @@
         <!--動画分離-->
         <Label Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Content="動画分離"/>
         <StackPanel Grid.Row="1" Grid.Column="1" Grid.RowSpan="2">
-            <StackPanel  Orientation="Horizontal" DockPanel.Dock="Top" CanHorizontallyScroll="True">
+            <StackPanel  Orientation="Horizontal" DockPanel.Dock="Top" CanHorizontallyScroll="True" >
                 <Label HorizontalAlignment="Left" VerticalAlignment="Center"  Content="無音継続(秒)"/>
-                <TextBox Name="NoSoundTerm" Height="20" Width="40" HorizontalAlignment="Right">0.4
+                <TextBox Name="TxtNoSoundTerm" Height="20" Width="40" HorizontalAlignment="Right">1
                     <TextBox.ToolTip>無音区間が設定秒以上連続した場合に分離して除外する</TextBox.ToolTip>
                 </TextBox>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" CanHorizontallyScroll="True">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" CanHorizontallyScroll="True" >
+                <Label HorizontalAlignment="Left" VerticalAlignment="Center"  Content="排除判定(秒)"/>
+                <TextBox Name="TxtCreateTimeCondition" Height="20" Width="40" HorizontalAlignment="Right">0.3
+                    <TextBox.ToolTip>有音区間であっても、その区間の時間が排除判定秒以内の場合、有音動画を生成しない</TextBox.ToolTip>
+                </TextBox>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" CanHorizontallyScroll="True" >
                 <Label HorizontalAlignment="Left" VerticalAlignment="Center"  Content="無音判定(dB)"/>
-                <TextBox Name="NoSoundLevel" Height="20" Width="40" HorizontalAlignment="Right">-30</TextBox>
+                <TextBox Name="TxtNoSoundLevel" Height="20" Width="40" HorizontalAlignment="Right">-30
+                    <TextBox.ToolTip>ここで設定した数値以下の音量は排除する</TextBox.ToolTip>
+                </TextBox>
             </StackPanel>
         </StackPanel>
 
