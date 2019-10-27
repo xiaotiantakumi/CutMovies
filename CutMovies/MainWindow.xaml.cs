@@ -47,18 +47,31 @@ namespace CutMovies
             this.TextBlockFileName.Text = inputPath;
             this.TextBlockFileName.ToolTip = inputPath;
             this.FfmpegPath = curDirrectory + @"\ffmpeg.exe";
+            ToggleProgressBarVisibility();
         }
 
-        private void BtnSeparation_Click(object sender, RoutedEventArgs e)
+        private async void BtnSeparation_Click(object sender, RoutedEventArgs e)
         {
-            ExecuteSeparation();
+            ToggleProgressBarVisibility();
+            var contexts = CreateMovieContexts();
+            await Task.Run(() => ExecuteSeparation(contexts));
             ShowCompleteDialog();
             this.BtnJoin.IsEnabled = true;
         }
 
-        private void ExecuteSeparation()
+        private void ToggleProgressBarVisibility()
         {
-            var contexts = CreateMovieContexts();
+            if (this.ProgressBar.Visibility == Visibility.Visible)
+            {
+                this.ProgressBar.Visibility = Visibility.Hidden;
+            }else
+            {
+                this.ProgressBar.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void ExecuteSeparation(List<GetMovieContext> contexts)
+        {
             var info = GetAllMoviePartsList(contexts);
 
             CreatePartMovie(info);
@@ -66,6 +79,7 @@ namespace CutMovies
 
         private void ShowCompleteDialog()
         {
+            ToggleProgressBarVisibility();
             this.Activate();
             Dialog dialog = new Dialog();
             dialog.Owner = this;
@@ -84,6 +98,17 @@ namespace CutMovies
                 inputDirectory, "*", System.IO.SearchOption.TopDirectoryOnly);
             var outputDir = inputDirectory + @"\output\";
 
+            var tmpIntervalTime = this.IntervalTime.Text;
+            var parseRet = double.TryParse(tmpIntervalTime, out double intervalTime);
+            if (parseRet)
+            {
+                intervalTime = 1 / intervalTime;
+            }
+            else
+            {
+                intervalTime = 1;
+            }
+
             List<GetMovieContext> contexts = new List<GetMovieContext>();
             foreach (var file in files)
             {
@@ -92,7 +117,10 @@ namespace CutMovies
                     outputDir, 
                     0, 
                     0,
-                    this.TxtCreateTimeCondition.Text);
+                    this.TxtCreateTimeCondition.Text,
+                    intervalTime,
+                    this.TxtNoSoundLevel.Text,
+                    this.TxtNoSoundTerm.Text);
                 contexts.Add(context);
             }
             return contexts;
@@ -180,7 +208,7 @@ namespace CutMovies
         /// <returns></returns>
         private List<SoundPartInfo> CreatePartList(GetMovieContext getMovieContext)
         {
-            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise={this.TxtNoSoundLevel.Text}dB:d={this.TxtNoSoundTerm.Text} -f null -";
+            var arguments = $@"-i {getMovieContext.InputMoviePath} -af silencedetect=noise={getMovieContext.NoSoundLevel}dB:d={getMovieContext.NoSoundTerm} -f null -";
             var rawinfo = FfmpegExecute(arguments);
 
             var tmpInfo = rawinfo.Replace(Environment.NewLine, " ").Split(' ');
@@ -209,18 +237,19 @@ namespace CutMovies
             return soundPartInfoList;
         }
 
-        private void BtnJoin_Click(object sender, RoutedEventArgs e)
+        private async void BtnJoin_Click(object sender, RoutedEventArgs e)
         {
-            ExecuteJoinPartMovies();
+            ToggleProgressBarVisibility();
+            var contexts = CreateMovieContexts();
+            await Task.Run(() => ExecuteJoinPartMovies(contexts));
             ShowCompleteDialog();
         }
 
-        private void ExecuteJoinPartMovies()
+        private void ExecuteJoinPartMovies(List<GetMovieContext> getMovieContexts)
         {
-            var contexts = CreateMovieContexts();
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
             var outputDir = curDirrectory + @"\output\";
-            foreach (var context in contexts)
+            foreach (var context in getMovieContexts)
             {
                 var summaryPath = GetOutPutFileSummaryPath(context.OutputDirectoryPath);
 
@@ -231,27 +260,17 @@ namespace CutMovies
             }
         }
 
-        private void ButtonThumbnail_Click(object sender, RoutedEventArgs e)
+        private async void ButtonThumbnail_Click(object sender, RoutedEventArgs e)
         {
-            ExecuteMakeThumbnail();
+            ToggleProgressBarVisibility();
+            var contexts = CreateMovieContexts();
+            await Task.Run(() => ExecuteMakeThumbnail(contexts));
             ShowCompleteDialog();
         }
 
-        private void ExecuteMakeThumbnail()
+        private void ExecuteMakeThumbnail(List<GetMovieContext> contexts)
         {
-            var tmpIntervalTime = this.IntervalTime.Text;
-            var parseRet = double.TryParse(tmpIntervalTime, out double intervalTime);
-            if (parseRet)
-            {
-                intervalTime = 1 / intervalTime;
-            }
-            else
-            {
-                intervalTime = 1;
-            }
-
-            var contexts = CreateMovieContexts();
-
+            
             foreach (var context in contexts)
             {
                 // 出力先のフォルダ
@@ -261,7 +280,7 @@ namespace CutMovies
                 Directory.CreateDirectory(outPutPath);
 
                 var arguments =
-                    $@"-i {context.InputMoviePath} -filter:v fps=fps={intervalTime}:round=down -q:v 0.2 {outPutPath}\%09d.jpg";
+                    $@"-i {context.InputMoviePath} -filter:v fps=fps={context.IntervalTime}:round=down -q:v 0.2 {outPutPath}\%09d.jpg";
 
                 FfmpegExecute(arguments);
             }
@@ -295,11 +314,13 @@ namespace CutMovies
             return tmp;
         }
 
-        private void BtnAllExecute_Click(object sender, RoutedEventArgs e)
+        private async void BtnAllExecute_Click(object sender, RoutedEventArgs e)
         {
-            ExecuteSeparation();
-            ExecuteMakeThumbnail();
-            ExecuteJoinPartMovies();
+            ToggleProgressBarVisibility();
+            var contexts = CreateMovieContexts();
+            await Task.Run(() => ExecuteSeparation(contexts));
+            await Task.Run(() => ExecuteMakeThumbnail(contexts));
+            await Task.Run(() => ExecuteJoinPartMovies(contexts));
             ShowCompleteDialog();
         }
 
