@@ -49,7 +49,11 @@ namespace CutMovies
             this.FfmpegPath = curDirrectory + @"\ffmpeg.exe";
             ToggleProgressBarVisibility();
         }
-
+        /// <summary>
+        /// 分離ボタンイベント実行
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void BtnSeparation_Click(object sender, RoutedEventArgs e)
         {
             ToggleProgressBarVisibility();
@@ -58,25 +62,26 @@ namespace CutMovies
             ShowCompleteDialog();
             this.BtnJoin.IsEnabled = true;
         }
-
+        /// <summary>
+        /// プログレスバーの表示切替
+        /// </summary>
         private void ToggleProgressBarVisibility()
         {
-            if (this.ProgressBar.Visibility == Visibility.Visible)
-            {
-                this.ProgressBar.Visibility = Visibility.Hidden;
-            }else
-            {
-                this.ProgressBar.Visibility = Visibility.Visible;
-            }
+            this.ProgressBar.Visibility = this.ProgressBar.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
         }
-
+        /// <summary>
+        /// 分離処理
+        /// </summary>
+        /// <param name="contexts"></param>
         private void ExecuteSeparation(List<GetMovieContext> contexts)
         {
             var info = GetAllMoviePartsList(contexts);
 
             CreatePartMovie(info);
         }
-
+        /// <summary>
+        /// 処理完了ダイアログ表示
+        /// </summary>
         private void ShowCompleteDialog()
         {
             ToggleProgressBarVisibility();
@@ -125,7 +130,10 @@ namespace CutMovies
             }
             return contexts;
         }
-
+        /// <summary>
+        /// 有音区間の動画を生成
+        /// </summary>
+        /// <param name="mInfoList"></param>
         private void CreatePartMovie(List<MovieInfomation> mInfoList)
         {
             foreach (var mInfo in mInfoList)
@@ -167,7 +175,11 @@ namespace CutMovies
 
             return outPutFileList;
         }
-
+        /// <summary>
+        /// 結合の際に必要となるtxtデータを生成
+        /// </summary>
+        /// <param name="outPutFileList"></param>
+        /// <param name="outPutPath"></param>
         private static void CreateSummaryTxt(List<string> outPutFileList, string outPutPath)
         {
             var summaryPath = GetOutPutFileSummaryPath(outPutPath);
@@ -236,7 +248,11 @@ namespace CutMovies
 
             return soundPartInfoList;
         }
-
+        /// <summary>
+        /// 結合ボタン実行
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void BtnJoin_Click(object sender, RoutedEventArgs e)
         {
             ToggleProgressBarVisibility();
@@ -244,7 +260,10 @@ namespace CutMovies
             await Task.Run(() => ExecuteJoinPartMovies(contexts));
             ShowCompleteDialog();
         }
-
+        /// <summary>
+        /// 結合処理
+        /// </summary>
+        /// <param name="getMovieContexts"></param>
         private void ExecuteJoinPartMovies(List<GetMovieContext> getMovieContexts)
         {
             var curDirrectory = System.IO.Directory.GetCurrentDirectory();
@@ -267,7 +286,10 @@ namespace CutMovies
             await Task.Run(() => ExecuteMakeThumbnail(contexts));
             ShowCompleteDialog();
         }
-
+        /// <summary>
+        /// サムネイル作成処理実行
+        /// </summary>
+        /// <param name="contexts"></param>
         private void ExecuteMakeThumbnail(List<GetMovieContext> contexts)
         {
             
@@ -313,7 +335,11 @@ namespace CutMovies
 
             return tmp;
         }
-
+        /// <summary>
+        /// 全実行ボタンイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void BtnAllExecute_Click(object sender, RoutedEventArgs e)
         {
             ToggleProgressBarVisibility();
@@ -323,7 +349,11 @@ namespace CutMovies
             await Task.Run(() => ExecuteJoinPartMovies(contexts));
             ShowCompleteDialog();
         }
-
+        /// <summary>
+        /// パス設定のファイルダイアログを表示
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FileOpenButton_Click(object sender, RoutedEventArgs e)
         {
             string initialFileName = "SelectFolder Or Files";
